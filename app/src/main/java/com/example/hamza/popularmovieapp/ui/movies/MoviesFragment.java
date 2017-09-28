@@ -5,31 +5,26 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.hamza.popularmovieapp.App;
 import com.example.hamza.popularmovieapp.R;
 import com.example.hamza.popularmovieapp.model.Movie;
-import com.example.hamza.popularmovieapp.service.responed.MovieResponed;
 import com.example.hamza.popularmovieapp.ui.movies.adapter.MoviesAdapter;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
-public class MoviesFragment extends Fragment {
+public class MoviesFragment extends Fragment implements MoiveContract.View {
 
     @BindView(R.id.moviesRV)
     RecyclerView moviesRV;
 
     MoviesAdapter moviesAdapter;
+    MoiveContract.Prsenter moviePrsenter;
 
     public MoviesFragment() {}
 
@@ -47,29 +42,25 @@ public class MoviesFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_movies, container, false);
         ButterKnife.bind(this, view);
-        getMovie();
+        moviePrsenter = new MoviePresenter(this);
+        moviePrsenter.getMoives();
         return view;
     }
 
-    void getMovie() {
-        App.service.getMovies().enqueue(new Callback<MovieResponed>() {
-            @Override
-            public void onResponse(Call<MovieResponed> call, Response<MovieResponed> response) {
-                if (response.isSuccessful()) {
-                    onSucess(response.body().getMovies());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<MovieResponed> call, Throwable t) {
-
-            }
-        });
-    }
-
-    void onSucess(ArrayList<Movie> movies) {
+    @Override
+    public void setMovies(ArrayList<Movie> movies) {
         moviesAdapter = new MoviesAdapter(movies);
         moviesRV.setLayoutManager(new GridLayoutManager(getActivity(), 3));
         moviesRV.setAdapter(moviesAdapter);
+    }
+
+    @Override
+    public void setNoMovies() {
+
+    }
+
+    @Override
+    public void showError() {
+
     }
 }
